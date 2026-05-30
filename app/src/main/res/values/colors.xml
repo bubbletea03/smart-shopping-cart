@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="market_emart">#FF2F7D32</color>
+    <color name="market_homeplus">#FF0B66C3</color>
+    <color name="market_gs25">#FF0B66C3</color>
+    <color name="market_lotte">#FFD32F2F</color>
+    <color name="market_costco">#FF00695C</color>
+    <color name="camera_preview_background">#FF111318</color>
+    <color name="camera_placeholder_background">#FF1E222B</color>
+    <color name="camera_preview_primary_text">#FFE2E2E8</color>
+    <color name="camera_preview_secondary_text">#FFC3C6D1</color>
+</resources>

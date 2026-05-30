@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="spacing_xsmall">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="row_content_spacing">16dp</dimen>
+    <dimen name="list_item_spacing">12dp</dimen>
+    <dimen name="product_list_spacing">10dp</dimen>
+    <dimen name="spacing_header">20dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_xlarge">28dp</dimen>
+    <dimen name="screen_top_spacing">36dp</dimen>
+    <dimen name="screen_horizontal_padding">24dp</dimen>
+    <dimen name="content_horizontal_padding">20dp</dimen>
+    <dimen name="content_vertical_padding">16dp</dimen>
+    <dimen name="card_padding">18dp</dimen>
+    <dimen name="product_row_horizontal_padding">14dp</dimen>
+    <dimen name="product_row_vertical_padding">12dp</dimen>
+    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_border_width">1dp</dimen>
+    <dimen name="market_badge_size">48dp</dimen>
+    <dimen name="camera_placeholder_height">180dp</dimen>
+</resources>

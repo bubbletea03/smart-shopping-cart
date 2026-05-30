@@ -1,0 +1,64 @@
+{
+  "markets": [
+    {
+      "name": "E-Mart",
+      "description": "Large grocery market",
+      "initial": "E",
+      "colorKey": "emart",
+      "products": [
+        { "id": "emart-001", "name": "Seoul Milk 1L", "category": "Dairy", "price": 3200, "stockCount": 18 },
+        { "id": "emart-002", "name": "Shin Ramyun 5 Pack", "category": "Noodles", "price": 4800, "stockCount": 34 },
+        { "id": "emart-003", "name": "Instant Rice 6 Pack", "category": "Rice", "price": 7600, "stockCount": 21 },
+        { "id": "emart-004", "name": "Samdasoo Water 2L", "category": "Water", "price": 1100, "stockCount": 52 }
+      ]
+    },
+    {
+      "name": "Homeplus",
+      "description": "Food and daily supplies",
+      "initial": "H",
+      "colorKey": "homeplus",
+      "products": [
+        { "id": "homeplus-001", "name": "Orange Juice", "category": "Drink", "price": 3900, "stockCount": 15 },
+        { "id": "homeplus-002", "name": "Tofu", "category": "Fresh", "price": 1800, "stockCount": 24 },
+        { "id": "homeplus-003", "name": "Tuna Can 4 Pack", "category": "Can", "price": 9800, "stockCount": 11 },
+        { "id": "homeplus-004", "name": "Banana Bunch", "category": "Fruit", "price": 4500, "stockCount": 17 }
+      ]
+    },
+    {
+      "name": "Dankook GS25",
+      "description": "Campus convenience store",
+      "initial": "D",
+      "colorKey": "gs25",
+      "products": [
+        { "id": "gs25-001", "name": "Americano", "category": "Coffee", "price": 2000, "stockCount": 30 },
+        { "id": "gs25-002", "name": "Triangle Kimbap", "category": "Meal", "price": 1400, "stockCount": 12 },
+        { "id": "gs25-003", "name": "Bottled Water", "category": "Drink", "price": 900, "stockCount": 45 },
+        { "id": "gs25-004", "name": "Chocolate Bar", "category": "Snack", "price": 1500, "stockCount": 20 }
+      ]
+    },
+    {
+      "name": "Lotte Mart",
+      "description": "Nearby supermarket",
+      "initial": "L",
+      "colorKey": "lotte",
+      "products": [
+        { "id": "lottemart-001", "name": "Custard Cake", "category": "Snack", "price": 5400, "stockCount": 19 },
+        { "id": "lottemart-002", "name": "Eggs 15 Count", "category": "Fresh", "price": 7200, "stockCount": 10 },
+        { "id": "lottemart-003", "name": "Onion 1.5kg", "category": "Vegetable", "price": 3600, "stockCount": 14 },
+        { "id": "lottemart-004", "name": "Bulgogi Sauce", "category": "Sauce", "price": 3100, "stockCount": 25 }
+      ]
+    },
+    {
+      "name": "Costco",
+      "description": "Bulk shopping market",
+      "initial": "C",
+      "colorKey": "costco",
+      "products": [
+        { "id": "costco-001", "name": "Kirkland Water 40 Pack", "category": "Water", "price": 12900, "stockCount": 8 },
+        { "id": "costco-002", "name": "Family Potato Chips", "category": "Snack", "price": 8900, "stockCount": 16 },
+        { "id": "costco-003", "name": "Frozen Pizza 4 Pack", "category": "Frozen", "price": 15900, "stockCount": 9 },
+        { "id": "costco-004", "name": "Cheesecake", "category": "Bakery", "price": 18900, "stockCount": 7 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">SmartShoppingCart</string>
+    <string name="market_selection_title">Select Shopping Market</string>
+    <string name="market_selection_subtitle">Choose the market you want to shop in today.</string>
+    <string name="action_select">Select</string>
+    <string name="action_allow">Allow</string>
+    <string name="action_market_info">Market Info</string>
+    <string name="action_change_market">Change Market</string>
+    <string name="action_back">Back</string>
+    <string name="camera_permission_title">Camera permission required</string>
+    <string name="camera_permission_message">The app needs camera access for product scanning.</string>
+    <string name="camera_permission_denied_message">Allow camera permission to scan products.</string>
+    <string name="camera_preview_label">Camera Preview</string>
+    <string name="camera_placeholder_message">Place a barcode or package in the center</string>
+    <string name="recognized_products_title">Recognized Products</string>
+    <string name="recognized_products_empty">Scanned products will appear here.</string>
+    <string name="item_count_format">%1$d items</string>
+    <string name="registered_products_count_format">%1$d registered products</string>
+    <string name="market_products_empty">No products are registered.</string>
+    <string name="product_category_stock_format">%1$s - stock %2$d</string>
+</resources>
