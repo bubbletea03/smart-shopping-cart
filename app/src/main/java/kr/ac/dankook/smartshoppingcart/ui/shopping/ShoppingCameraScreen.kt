@@ -16,15 +16,21 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import kr.ac.dankook.smartshoppingcart.data.FakeMarketDatabase
+import kr.ac.dankook.smartshoppingcart.detection.DetectionResult
 import kr.ac.dankook.smartshoppingcart.R
 import kr.ac.dankook.smartshoppingcart.ui.theme.SmartShoppingCartTheme
 
@@ -40,17 +46,46 @@ fun ShoppingCameraScreen(
     onChangeMarket: () -> Unit,
     onOpenMarketInfo: () -> Unit
 ) {
-    val recognizedProducts = remember {
+    val context = LocalContext.current
+    val marketProducts = remember(marketName) {
+        FakeMarketDatabase.getProducts(context, marketName)
+    }
+    val recognizedProducts = remember(marketName) {
         mutableStateListOf<RecognizedProduct>()
     }
+    var latestDetections by remember(marketName) { mutableStateOf(emptyList<DetectionResult>()) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         CameraPreviewLayout(
             marketName = marketName,
+            productLabels = marketProducts.map { it.name },
+            latestDetections = latestDetections,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(7f),
-            onChangeMarket = onChangeMarket
+            onChangeMarket = onChangeMarket,
+            onDetections = { detections ->
+                latestDetections = detections
+                detections.forEach { detection ->
+                    val marketProduct = marketProducts.getOrNull(detection.classIndex)
+                    val product = if (marketProduct != null) {
+                        RecognizedProduct(
+                            name = marketProduct.name,
+                            code = marketProduct.id,
+                            price = marketProduct.displayPrice
+                        )
+                    } else {
+                        RecognizedProduct(
+                            name = detection.label,
+                            code = "confidence %.0f%%".format(detection.confidence * 100),
+                            price = "-"
+                        )
+                    }
+                    if (recognizedProducts.none { it.code == product.code }) {
+                        recognizedProducts.add(product)
+                    }
+                }
+            }
         )
         RecognizedProductsLayout(
             products = recognizedProducts,
@@ -65,16 +100,29 @@ fun ShoppingCameraScreen(
 @Composable
 private fun CameraPreviewLayout(
     marketName: String,
+    productLabels: List<String>,
+    latestDetections: List<DetectionResult>,
     modifier: Modifier = Modifier,
-    onChangeMarket: () -> Unit
+    onChangeMarket: () -> Unit,
+    onDetections: (List<DetectionResult>) -> Unit
 ) {
     Box(
         modifier = modifier
             .background(colorResource(R.color.camera_preview_background))
-            .padding(dimensionResource(R.dimen.card_padding))
     ) {
+        CameraXDetectionPreview(
+            labels = productLabels,
+            modifier = Modifier.fillMaxSize(),
+            onDetections = onDetections
+        )
+
         Column(
-            modifier = Modifier.align(Alignment.TopStart)
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(dimensionResource(R.dimen.card_padding))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+                .background(colorResource(R.color.camera_preview_background).copy(alpha = 0.72f))
+                .padding(dimensionResource(R.dimen.spacing_small))
         ) {
             Text(
                 text = marketName,
@@ -90,30 +138,30 @@ private fun CameraPreviewLayout(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(0.72f)
-                .height(dimensionResource(R.dimen.camera_placeholder_height)),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
+        if (latestDetections.isNotEmpty()) {
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .align(Alignment.BottomStart)
+                    .padding(dimensionResource(R.dimen.card_padding))
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-                    .background(colorResource(R.color.camera_placeholder_background)),
-                contentAlignment = Alignment.Center
+                    .background(colorResource(R.color.camera_preview_background).copy(alpha = 0.72f))
+                    .padding(dimensionResource(R.dimen.spacing_small)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xsmall))
             ) {
-                Text(
-                    text = stringResource(R.string.camera_placeholder_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colorResource(R.color.camera_preview_primary_text)
-                )
+                latestDetections.forEach { detection ->
+                    Text(
+                        text = "${detection.label} ${"%.0f%%".format(detection.confidence * 100)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorResource(R.color.camera_preview_primary_text)
+                    )
+                }
             }
         }
 
         Row(
-            modifier = Modifier.align(Alignment.TopEnd),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(dimensionResource(R.dimen.card_padding)),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
         ) {
             OutlinedButton(onClick = onChangeMarket) {
