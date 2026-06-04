@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.YuvImage
 import androidx.camera.core.ImageProxy
 import org.tensorflow.lite.DataType
@@ -20,7 +21,8 @@ import kotlin.math.max
 data class DetectionResult(
     val label: String,
     val confidence: Float,
-    val classIndex: Int
+    val classIndex: Int,
+    val boundingBox: RectF
 )
 
 class YoloObjectDetector(
@@ -120,7 +122,8 @@ class YoloObjectDetector(
                         DetectionResult(
                             label = labels.getOrElse(bestClassIndex) { "class-$bestClassIndex" },
                             confidence = confidence,
-                            classIndex = bestClassIndex
+                            classIndex = bestClassIndex,
+                            boundingBox = output.boundingBoxAt(candidateIndex, isTransposed)
                         )
                     )
                 }
@@ -142,6 +145,30 @@ class YoloObjectDetector(
         } else {
             this[candidateIndex][attributeIndex]
         }
+    }
+
+    private fun Array<FloatArray>.boundingBoxAt(
+        candidateIndex: Int,
+        isTransposed: Boolean
+    ): RectF {
+        var centerX = valueAt(candidateIndex, 0, isTransposed)
+        var centerY = valueAt(candidateIndex, 1, isTransposed)
+        var width = valueAt(candidateIndex, 2, isTransposed)
+        var height = valueAt(candidateIndex, 3, isTransposed)
+
+        if (max(max(centerX, centerY), max(width, height)) > 1f) {
+            centerX /= inputWidth
+            width /= inputWidth
+            centerY /= inputHeight
+            height /= inputHeight
+        }
+
+        return RectF(
+            (centerX - width / 2f).coerceIn(0f, 1f),
+            (centerY - height / 2f).coerceIn(0f, 1f),
+            (centerX + width / 2f).coerceIn(0f, 1f),
+            (centerY + height / 2f).coerceIn(0f, 1f)
+        )
     }
 
     private fun ImageProxy.toBitmap(): Bitmap {

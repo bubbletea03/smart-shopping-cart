@@ -2,6 +2,7 @@ package kr.ac.dankook.smartshoppingcart.ui.shopping
 
 import android.util.Log
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -17,6 +18,7 @@ import androidx.core.content.ContextCompat
 import kr.ac.dankook.smartshoppingcart.detection.DetectionResult
 import kr.ac.dankook.smartshoppingcart.detection.YoloObjectDetector
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun CameraXDetectionPreview(
@@ -45,35 +47,44 @@ fun CameraXDetectionPreview(
         modifier = modifier
     )
 
-    DisposableEffect(detector, cameraExecutor) {
-        onDispose {
-            detector.close()
-            cameraExecutor.shutdown()
-        }
-    }
-
     DisposableEffect(lifecycleOwner, labels, detector) {
+        val isDisposed = AtomicBoolean(false)
+        val detectorLock = Any()
         var lastAnalyzedAt = 0L
+        var imageAnalysis: ImageAnalysis? = null
+        var cameraProvider: ProcessCameraProvider? = null
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
         cameraProviderFuture.addListener(
             {
-                val cameraProvider = cameraProviderFuture.get()
+                if (isDisposed.get()) return@addListener
+
+                cameraProvider = cameraProviderFuture.get()
                 val preview = Preview.Builder()
                     .build()
                     .also { it.setSurfaceProvider(previewView.surfaceProvider) }
-                val analysis = ImageAnalysis.Builder()
+                imageAnalysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also { imageAnalysis ->
                         imageAnalysis.setAnalyzer(cameraExecutor) { imageProxy ->
                             try {
+                                if (isDisposed.get()) return@setAnalyzer
+
                                 val now = System.currentTimeMillis()
                                 if (now - lastAnalyzedAt >= ANALYSIS_INTERVAL_MS) {
                                     lastAnalyzedAt = now
-                                    val detections = detector.detect(imageProxy)
+                                    val detections = synchronized(detectorLock) {
+                                        if (isDisposed.get()) {
+                                            emptyList()
+                                        } else {
+                                            detector.detect(imageProxy)
+                                        }
+                                    }
                                     mainExecutor.execute {
-                                        onDetections(detections)
+                                        if (!isDisposed.get()) {
+                                            onDetections(detections)
+                                        }
                                     }
                                 }
                             } catch (exception: Exception) {
@@ -84,23 +95,52 @@ fun CameraXDetectionPreview(
                         }
                     }
 
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                cameraProvider?.unbindAll()
+                val camera = cameraProvider?.bindToLifecycle(
                     lifecycleOwner,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     preview,
-                    analysis
+                    imageAnalysis
                 )
+                camera?.let {
+                    previewView.post {
+                        lockFocusAtCenter(previewView, it.cameraControl)
+                    }
+                }
             },
             mainExecutor
         )
 
         onDispose {
-            if (cameraProviderFuture.isDone) {
-                cameraProviderFuture.get().unbindAll()
+            isDisposed.set(true)
+            imageAnalysis?.clearAnalyzer()
+            cameraProvider?.unbindAll()
+            cameraExecutor.shutdown()
+            synchronized(detectorLock) {
+                detector.close()
             }
         }
     }
+}
+
+private fun lockFocusAtCenter(
+    previewView: PreviewView,
+    cameraControl: androidx.camera.core.CameraControl
+) {
+    if (previewView.width == 0 || previewView.height == 0) return
+
+    val centerPoint = previewView.meteringPointFactory.createPoint(
+        previewView.width / 2f,
+        previewView.height / 2f
+    )
+    val focusAction = FocusMeteringAction.Builder(
+        centerPoint,
+        FocusMeteringAction.FLAG_AF
+    )
+        .disableAutoCancel()
+        .build()
+
+    cameraControl.startFocusAndMetering(focusAction)
 }
 
 private const val ANALYSIS_INTERVAL_MS = 500L
