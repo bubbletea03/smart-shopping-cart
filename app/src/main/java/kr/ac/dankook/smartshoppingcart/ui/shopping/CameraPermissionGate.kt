@@ -34,7 +34,8 @@ import kr.ac.dankook.smartshoppingcart.R
 fun CameraPermissionGate(
     marketName: String,
     onChangeMarket: () -> Unit,
-    onOpenMarketInfo: () -> Unit
+    onOpenMarketInfo: () -> Unit,
+    onCheckout: (List<RecognizedProduct>) -> Unit
 ) {
     val context = LocalContext.current
     var hasCameraPermission by remember {
@@ -52,7 +53,8 @@ fun CameraPermissionGate(
         ShoppingCameraScreen(
             marketName = marketName,
             onChangeMarket = onChangeMarket,
-            onOpenMarketInfo = onOpenMarketInfo
+            onOpenMarketInfo = onOpenMarketInfo,
+            onCheckout = onCheckout
         )
     } else {
         CameraPermissionScreen(

@@ -29,7 +29,7 @@ class YoloObjectDetector(
     context: Context,
     private val labels: List<String>,
     modelAssetName: String = "best_float32.tflite",
-    private val confidenceThreshold: Float = 0.45f
+    private val confidenceThreshold: Float = 0.65f
 ) : AutoCloseable {
     private val interpreter = Interpreter(
         loadModel(context, modelAssetName),
@@ -135,42 +135,6 @@ class YoloObjectDetector(
             .take(5)
     }
 
-    private fun Array<FloatArray>.valueAt(
-        candidateIndex: Int,
-        attributeIndex: Int,
-        isTransposed: Boolean
-    ): Float {
-        return if (isTransposed) {
-            this[attributeIndex][candidateIndex]
-        } else {
-            this[candidateIndex][attributeIndex]
-        }
-    }
-
-    private fun Array<FloatArray>.boundingBoxAt(
-        candidateIndex: Int,
-        isTransposed: Boolean
-    ): RectF {
-        var centerX = valueAt(candidateIndex, 0, isTransposed)
-        var centerY = valueAt(candidateIndex, 1, isTransposed)
-        var width = valueAt(candidateIndex, 2, isTransposed)
-        var height = valueAt(candidateIndex, 3, isTransposed)
-
-        if (max(max(centerX, centerY), max(width, height)) > 1f) {
-            centerX /= inputWidth
-            width /= inputWidth
-            centerY /= inputHeight
-            height /= inputHeight
-        }
-
-        return RectF(
-            (centerX - width / 2f).coerceIn(0f, 1f),
-            (centerY - height / 2f).coerceIn(0f, 1f),
-            (centerX + width / 2f).coerceIn(0f, 1f),
-            (centerY + height / 2f).coerceIn(0f, 1f)
-        )
-    }
-
     private fun ImageProxy.toBitmap(): Bitmap {
         val nv21 = toNv21()
         val yuvImage = YuvImage(nv21, ImageFormat.NV21, width, height, null)
@@ -217,6 +181,42 @@ class YoloObjectDetector(
         if (degrees == 0) return this
         val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    }
+
+    private fun Array<FloatArray>.valueAt(
+        candidateIndex: Int,
+        attributeIndex: Int,
+        isTransposed: Boolean
+    ): Float {
+        return if (isTransposed) {
+            this[attributeIndex][candidateIndex]
+        } else {
+            this[candidateIndex][attributeIndex]
+        }
+    }
+
+    private fun Array<FloatArray>.boundingBoxAt(
+        candidateIndex: Int,
+        isTransposed: Boolean
+    ): RectF {
+        var centerX = valueAt(candidateIndex, 0, isTransposed)
+        var centerY = valueAt(candidateIndex, 1, isTransposed)
+        var width = valueAt(candidateIndex, 2, isTransposed)
+        var height = valueAt(candidateIndex, 3, isTransposed)
+
+        if (max(max(centerX, centerY), max(width, height)) > 1f) {
+            centerX /= inputWidth
+            width /= inputWidth
+            centerY /= inputHeight
+            height /= inputHeight
+        }
+
+        return RectF(
+            (centerX - width / 2f).coerceIn(0f, 1f),
+            (centerY - height / 2f).coerceIn(0f, 1f),
+            (centerX + width / 2f).coerceIn(0f, 1f),
+            (centerY + height / 2f).coerceIn(0f, 1f)
+        )
     }
 
     private fun loadModel(context: Context, assetName: String): MappedByteBuffer {

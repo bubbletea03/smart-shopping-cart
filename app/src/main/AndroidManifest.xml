@@ -17,6 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartShoppingCart">
         <activity
+            android:name=".PaymentActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.SmartShoppingCart" />
+
+        <activity
             android:name=".ShoppingActivity"
             android:exported="false"
             android:label="@string/app_name"

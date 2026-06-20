@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import kr.ac.dankook.smartshoppingcart.PaymentActivity
 import kr.ac.dankook.smartshoppingcart.data.FakeMarketDatabase
 
 @Composable
@@ -33,7 +34,16 @@ fun ShoppingRoute(
                 ShoppingScreen.Camera -> CameraPermissionGate(
                     marketName = marketName,
                     onChangeMarket = onChangeMarket,
-                    onOpenMarketInfo = { currentScreen = ShoppingScreen.MarketInfo }
+                    onOpenMarketInfo = { currentScreen = ShoppingScreen.MarketInfo },
+                    onCheckout = { products ->
+                        context.startActivity(
+                            PaymentActivity.newIntent(
+                                context = context,
+                                marketName = marketName,
+                                products = products
+                            )
+                        )
+                    }
                 )
 
                 ShoppingScreen.MarketInfo -> MarketInfoScreen(

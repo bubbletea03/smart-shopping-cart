@@ -26,14 +26,18 @@
     },
     {
       "name": "Dankook GS25",
-      "description": "Campus convenience store",
+      "description": "GS25 is everywhere in Dankook University~",
       "initial": "D",
       "colorKey": "gs25",
       "products": [
-        { "id": "gs25-001", "name": "Americano", "category": "Coffee", "price": 2000, "stockCount": 30 },
-        { "id": "gs25-002", "name": "Triangle Kimbap", "category": "Meal", "price": 1400, "stockCount": 12 },
-        { "id": "gs25-003", "name": "Bottled Water", "category": "Drink", "price": 900, "stockCount": 45 },
-        { "id": "gs25-004", "name": "Chocolate Bar", "category": "Snack", "price": 1500, "stockCount": 20 }
+        { "id": "gs25-000", "name": "새콤달콤 (Sweet_and_sour)", "category": "Snack", "price": 1200, "stockCount": 20 },
+        { "id": "gs25-001", "name": "다이제 (digest)", "category": "Snack", "price": 2500, "stockCount": 20 },
+        { "id": "gs25-002", "name": "자유시간 (free_time)", "category": "Snack", "price": 1500, "stockCount": 20 },
+        { "id": "gs25-003", "name": "미즈 (miz)", "category": "Snack", "price": 1800, "stockCount": 20 },
+        { "id": "gs25-004", "name": "프링글스 (pringles)", "category": "Snack", "price": 3500, "stockCount": 20 },
+        { "id": "gs25-005", "name": "브라우니 (brownie_box)", "category": "Bakery", "price": 4500, "stockCount": 20 },
+        { "id": "gs25-006", "name": "트윅스 (twix)", "category": "Chocolate", "price": 1600, "stockCount": 20 },
+        { "id": "gs25-007", "name": "게토레이 (gatorade_bottle)", "category": "Drink", "price": 2200, "stockCount": 20 }
       ]
     },
     {

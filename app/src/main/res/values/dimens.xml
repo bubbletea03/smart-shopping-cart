@@ -18,5 +18,7 @@
     <dimen name="card_corner_radius">8dp</dimen>
     <dimen name="card_border_width">1dp</dimen>
     <dimen name="market_badge_size">48dp</dimen>
+    <dimen name="quantity_button_size">32dp</dimen>
+    <dimen name="product_price_min_width">86dp</dimen>
     <dimen name="camera_placeholder_height">180dp</dimen>
 </resources>

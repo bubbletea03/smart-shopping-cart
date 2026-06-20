@@ -1,6 +1,7 @@
 package kr.ac.dankook.smartshoppingcart.ui.shopping
 
 import android.util.Log
+import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
@@ -9,7 +10,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -23,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Composable
 fun CameraXDetectionPreview(
     labels: List<String>,
+    focusLockRequestCount: Int,
     modifier: Modifier = Modifier,
     onDetections: (List<DetectionResult>) -> Unit
 ) {
@@ -41,16 +47,22 @@ fun CameraXDetectionPreview(
             scaleType = PreviewView.ScaleType.FILL_CENTER
         }
     }
+    var cameraControl by remember { mutableStateOf<CameraControl?>(null) }
 
     AndroidView(
         factory = { previewView },
         modifier = modifier
     )
 
+    LaunchedEffect(focusLockRequestCount, cameraControl) {
+        if (focusLockRequestCount > 0) {
+            cameraControl?.let { lockFocusAtCenter(previewView, it) }
+        }
+    }
+
     DisposableEffect(lifecycleOwner, labels, detector) {
         val isDisposed = AtomicBoolean(false)
         val detectorLock = Any()
-        var lastAnalyzedAt = 0L
         var imageAnalysis: ImageAnalysis? = null
         var cameraProvider: ProcessCameraProvider? = null
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -71,20 +83,16 @@ fun CameraXDetectionPreview(
                             try {
                                 if (isDisposed.get()) return@setAnalyzer
 
-                                val now = System.currentTimeMillis()
-                                if (now - lastAnalyzedAt >= ANALYSIS_INTERVAL_MS) {
-                                    lastAnalyzedAt = now
-                                    val detections = synchronized(detectorLock) {
-                                        if (isDisposed.get()) {
-                                            emptyList()
-                                        } else {
-                                            detector.detect(imageProxy)
-                                        }
+                                val detections = synchronized(detectorLock) {
+                                    if (isDisposed.get()) {
+                                        emptyList()
+                                    } else {
+                                        detector.detect(imageProxy)
                                     }
-                                    mainExecutor.execute {
-                                        if (!isDisposed.get()) {
-                                            onDetections(detections)
-                                        }
+                                }
+                                mainExecutor.execute {
+                                    if (!isDisposed.get()) {
+                                        onDetections(detections)
                                     }
                                 }
                             } catch (exception: Exception) {
@@ -103,6 +111,7 @@ fun CameraXDetectionPreview(
                     imageAnalysis
                 )
                 camera?.let {
+                    cameraControl = it.cameraControl
                     previewView.post {
                         lockFocusAtCenter(previewView, it.cameraControl)
                     }
@@ -114,6 +123,7 @@ fun CameraXDetectionPreview(
         onDispose {
             isDisposed.set(true)
             imageAnalysis?.clearAnalyzer()
+            cameraControl = null
             cameraProvider?.unbindAll()
             cameraExecutor.shutdown()
             synchronized(detectorLock) {
@@ -143,5 +153,4 @@ private fun lockFocusAtCenter(
     cameraControl.startFocusAndMetering(focusAction)
 }
 
-private const val ANALYSIS_INTERVAL_MS = 500L
 private const val TAG = "CameraXDetectionPreview"
